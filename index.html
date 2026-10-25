@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gesture Overlay</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --panel: #181b22;
+      --line: #2a2f3a;
+      --text: #e8eaf0;
+      --muted: #8a90a0;
+      --accent: #4f8cff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Pretendard", "Malgun Gothic", system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px;
+    }
+    h1 { margin: 0 0 4px; font-size: 22px; }
+    .sub { margin: 0 0 20px; color: var(--muted); font-size: 14px; }
+    .layout {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+      max-width: 1100px;
+    }
+    .stage {
+      position: relative;
+      flex: 1 1 640px;
+      max-width: 800px;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #000;
+      border: 1px solid var(--line);
+      aspect-ratio: 4 / 3;
+    }
+    .stage canvas { width: 100%; height: 100%; display: block; }
+    #status {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      text-align: center;
+      padding: 20px;
+      white-space: pre-line;
+    }
+    #status.hidden { display: none; }
+
+    /* 제스처 오버레이: 손 위치를 따라다님 */
+    .overlay {
+      position: absolute;
+      transform: translate(-50%, -100%) scale(0.3);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .15s, transform .25s cubic-bezier(.2, 1.6, .4, 1);
+      filter: drop-shadow(0 6px 16px rgba(0, 0, 0, .5));
+    }
+    .overlay.show { opacity: 1; transform: translate(-50%, -100%) scale(1); }
+    .overlay .emoji { font-size: 140px; line-height: 1; }
+    .overlay svg { width: 260px; height: auto; display: block; }
+
+    .panel {
+      flex: 0 1 300px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      align-self: flex-start;
+    }
+    .panel h2 { margin: 0 0 10px; font-size: 13px; color: var(--muted); font-weight: 600; letter-spacing: .04em; }
+    #current { font-size: 36px; font-weight: 700; margin-bottom: 18px; min-height: 44px; }
+    .bar { margin-bottom: 10px; }
+    .bar-head { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 4px; }
+    .bar-track { height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
+    .bar-fill { height: 100%; width: 0; background: var(--accent); transition: width .1s; }
+    .bar.top .bar-fill { background: #3ddc97; }
+    label.th { display: block; margin-top: 18px; font-size: 13px; color: var(--muted); }
+    label.th input { width: 100%; }
+    .hint { margin-top: 16px; font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+    @media (max-width: 700px) {
+      .overlay .emoji { font-size: 90px; }
+      .overlay svg { width: 160px; }
+      .panel { flex-basis: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <h1>✋ Gesture Overlay</h1>
+  <p class="sub">학습한 제스처를 하면 화면에 로고·이모지가 나타납니다</p>
+
+  <div class="layout">
+    <div class="stage" id="stage">
+      <canvas id="canvas" width="640" height="480"></canvas>
+      <div id="status">모델 불러오는 중…</div>
+      <div class="overlay" id="overlay"></div>
+    </div>
+
+    <aside class="panel">
+      <h2>현재 제스처</h2>
+      <div id="current">-</div>
+      <h2>확률</h2>
+      <div id="bars"></div>
+      <label class="th">최소 확신도 <span id="thValue">0.70</span>
+        <input type="range" id="threshold" min="0" max="1" step="0.05" value="0.7">
+      </label>
+      <p class="hint">
+        nike → 스우시 로고<br>
+        ok → 👌<br>
+        새 제스처를 학습했다면 <code>app.js</code>의 <code>OVERLAYS</code>에 추가하세요.
+      </p>
+    </aside>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
